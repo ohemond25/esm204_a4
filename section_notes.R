@@ -49,8 +49,11 @@ for (rate in r) {
   damages_pv3 <- rbind(damages_pv3, temp_df)
 }
 
+<<<<<<< HEAD
 # make another graph using the scc data
 
 # METHOD 2: Use purrr map
 # see code posted to canvas (couldn't type fast enough)
+=======
+>>>>>>> 88b7bd1b2bbe5933d8c336391c59c4dd5e36a8fc
 
