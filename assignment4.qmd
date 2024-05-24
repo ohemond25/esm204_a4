@@ -1,0 +1,57 @@
+---
+title: "Social Cost of Carbon"
+subtitle: "ESM 204 Assignment 4"
+author: "Olivia Hemond and Caroline Edmonds"
+format: 
+  html:
+    code-fold: show
+    toc: true
+    embed-resources: true
+theme: litera
+execute: 
+  echo: true
+  message: false
+  warning: false
+editor: visual
+---
+## Setup
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+# read in data
+warming_data <- read.csv("warming.csv") %>% janitor::clean_names()
+```
+
+
+## Question 1
+
+*1. Plot the damage function over a range of delta T values from 0 degrees C to 6 degrees C.*
+
+## Question 2
+
+*2. Use warming.csv and the damage function to predict damages in each year under the baseline climate trajectory and under the pulse scenario. Make four plots: (1) damages over time without the pulse, (2) damages over time with the pulse, (3) the difference in damages over time with versus without the pulse (i.e., the damages that arise from the pulse), and (4) the damages over time that arise from the pulse per ton of CO2 (you can assume that each ton of the pulse causes the same amount of damage).*
+
+## Question 3
+
+*3. The SCC is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2.2 The Obama Administration used a discount rate of 3% to discount damages. The recent EPA update uses a discount rate that changes over time, but starts at 2%. Calculate and make a plot of the SCC (y-axis) against the discount rate (x-axis) for discount rates ranging from 1% to 8%.*
+
+## Question 4
+
+*4. Now suppose there are two possible climate policies that can be pursued. Policy A is business as usual emissions, without any substantial climate change mitigation. Policy B is to take immediate and strong action on climate change. Use these facts:*
+*• If you undertake Policy A there are two possible outcomes. Either warming will occur as in the \baseline" (i.e. \no-pulse") dataset above (this happens with probability 0.5) or warming each year will be 1.5 times that in the \baseline" dataset (with probability 0.5).*
+*• Under Policy B, warming will continue until 2050 as in the \baseline" dataset, and then will stabilize at 1.29 degrees and stay that way forever.*
+*• Society is risk neutral*
+*• Use a discount rate of 2%*
+
+*What is the expected present value of damages up to 2100 under Policy A?*
+
+*What is the expected present value of damages up to 2100 under Policy B?* 
+
+*Suppose undertaking Policy A costs zero and undertaking Policy B costs X. How large could X be for it to still make economic sense to pursue Policy B instead of Policy A?*
+
+## Question 5
+
+*5. Qualitatively, how would your answer to #4 change if society were risk averse? Write 1-2 sentences explaining your logic.*
