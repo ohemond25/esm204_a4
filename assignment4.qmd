@@ -30,9 +30,89 @@ warming_data <- read.csv("warming.csv") %>% janitor::clean_names()
 
 *1. Plot the damage function over a range of delta T values from 0 degrees C to 6 degrees C.*
 
+Create damage function:
+```{r}
+# delta_T represents warming in degrees C relative to pre-industrial period
+
+damage_fxn <- function(delta_T) {
+  damages <- (-2.05 * 10^12 * delta_T) + (3.9 * 10^13 * delta_T^2)
+}
+```
+
+Create dataframe using damage function for delta_T values from 0 to 6 degrees C:
+```{r}
+damage_fxn_df <- data.frame(delta_T = seq(0, 6, by = 0.1)) %>% 
+  mutate(damages = damage_fxn(delta_T))
+```
+
+Plot damage function:
+```{r}
+ggplot(damage_fxn_df, aes(x = delta_T, y = damages)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Damage Function \n (for Delta T from 0 to 6 Degrees C)",
+       x = "Delta T (degrees C)",
+       y = "Damages ($)") +
+  theme_minimal()
+```
+
+
 ## Question 2
 
 *2. Use warming.csv and the damage function to predict damages in each year under the baseline climate trajectory and under the pulse scenario. Make four plots: (1) damages over time without the pulse, (2) damages over time with the pulse, (3) the difference in damages over time with versus without the pulse (i.e., the damages that arise from the pulse), and (4) the damages over time that arise from the pulse per ton of CO2 (you can assume that each ton of the pulse causes the same amount of damage).*
+
+Modify the warming dataset to include the damages for each year under the two scenarios:
+```{r}
+warming_damages_df <- warming_data %>% 
+  mutate(damages_baseline = damage_fxn(warming_baseline), # use baseline delta Ts
+         damages_pulse = damage_fxn(warming_pulse), # use pulse delta Ts
+         damages_diff = damages_pulse - damages_baseline, # calculate difference
+         damages_pulse_per_ton = damages_diff / 35000000000) # divide difference by 35 bil
+```
+
+Plot 1: Damages over time without the pulse
+```{r}
+ggplot(warming_damages_df, aes(x = year, y = damages_baseline)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Damages Over Time Without the Pulse",
+       x = "Year",
+       y = "Damages ($)") +
+  theme_minimal()
+```
+
+Plot 2: Damages over time with the pulse
+```{r}
+ggplot(warming_damages_df, aes(x = year, y = damages_pulse)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Damages Over Time With the Pulse",
+       x = "Year",
+       y = "Damages ($)") +
+  theme_minimal()
+```
+
+Plot 3: Difference in damages over time with versus without the pulse
+```{r}
+ggplot(warming_damages_df, aes(x = year, y = damages_diff)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Difference in Damages Over Time with vs. without the Pulse",
+       x = "Year",
+       y = "Damages ($)") +
+  theme_minimal()
+```
+
+Plot 4: Damages over time that arise from the pulse per ton of CO2
+```{r}
+ggplot(warming_damages_df, aes(x = year, y = damages_pulse_per_ton)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Damages Over Time from the Pulse per Ton of CO2",
+       x = "Year",
+       y = "Damages ($)") +
+  theme_minimal()
+```
 
 ## Question 3
 
