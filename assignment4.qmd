@@ -116,7 +116,108 @@ ggplot(warming_damages_df, aes(x = year, y = damages_pulse_per_ton)) +
 
 ## Question 3
 
-*3. The SCC is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2.2 The Obama Administration used a discount rate of 3% to discount damages. The recent EPA update uses a discount rate that changes over time, but starts at 2%. Calculate and make a plot of the SCC (y-axis) against the discount rate (x-axis) for discount rates ranging from 1% to 8%.*
+*3. The SCC is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2. The Obama Administration used a discount rate of 3% to discount damages. The recent EPA update uses a discount rate that changes over time, but starts at 2%. Calculate and make a plot of the SCC (y-axis) against the discount rate (x-axis) for discount rates ranging from 1% to 8%.*
+
+TRIAL 1
+Create a function to calculate SCC (aka net present value):
+```{r}
+npv <- function(discount, value, time) {
+  result <- value / (1 + discount)^time
+  return(result)
+}
+```
+
+Calculate PV for discount rates ranging from 1% to 8%:
+```{r}
+# create sequence of discount rates
+discount_rates <- seq(0.01, 0.08, by = 0.01)
+
+# create dataframe to store present value (PV) values
+damages_pv <- data.frame()
+
+# write for loop to populate dataframe using our discount_rates values
+for (rate in discount_rates) {
+  # calculate SCC for each discount rate
+  pv <- npv(rate, warming_damages_df$damages_diff, warming_damages_df$year - 2021) # NOTE: using "damages_diff" column, may need to change to damages_pulse_per_ton
+  
+  # create temporary dataframe to store results
+  temp_df <- data.frame(
+    r = rate,
+    pv = pv,
+    year = warming_damages_df$year
+  )
+  
+  # bind temporary dataframe to main dataframe
+  damages_pv <- rbind(damages_pv, temp_df)
+}
+
+# calculate SCC based on pv for each rate
+scc_df <- damages_pv %>%
+  group_by(r) %>%
+  summarise(scc = sum(pv, na.rm = TRUE))
+```
+
+Plot SCC against discount rate:
+```{r}
+ggplot(scc_df, aes(x = r, y = scc)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Social Cost of Carbon (SCC) vs. Discount Rate",
+       x = "Discount Rate",
+       y = "Social Cost of Carbon ($)") +
+  theme_minimal()
+```
+
+TRIAL 2 - WE THINK THIS ONE IS RIGHT BUT LETS COME BACK TO IT
+
+Create a function to calculate SCC (aka net present value):
+```{r}
+npv <- function(discount, value, time) {
+  result <- value / (1 + discount)^time
+  return(result)
+}
+```
+
+Calculate PV for discount rates ranging from 1% to 8%:
+```{r}
+# create sequence of discount rates
+discount_rates <- seq(0.01, 0.08, by = 0.01)
+
+# create dataframe to store present value (PV) values
+damages_pv <- data.frame()
+
+# write for loop to populate dataframe using our discount_rates values
+for (rate in discount_rates) {
+  # calculate SCC for each discount rate
+  pv <- npv(rate, warming_damages_df$damages_pulse_per_ton, warming_damages_df$year - 2021) # NOTE: using damages_pulse_per_ton instead
+  
+  # create temporary dataframe to store results
+  temp_df <- data.frame(
+    r = rate,
+    pv = pv,
+    year = warming_damages_df$year
+  )
+  
+  # bind temporary dataframe to main dataframe
+  damages_pv <- rbind(damages_pv, temp_df)
+}
+
+# calculate SCC based on pv for each rate
+scc_df <- damages_pv %>%
+  group_by(r) %>%
+  summarise(scc = sum(pv, na.rm = TRUE))
+```
+
+Plot SCC against discount rate:
+```{r}
+ggplot(scc_df, aes(x = r, y = scc)) +
+  geom_point() +
+  geom_line() +
+  labs(title = "Social Cost of Carbon (SCC) vs. Discount Rate",
+       x = "Discount Rate",
+       y = "Social Cost of Carbon ($)") +
+  theme_minimal()
+```
 
 ## Question 4
 
@@ -127,6 +228,13 @@ ggplot(warming_damages_df, aes(x = year, y = damages_pulse_per_ton)) +
 *• Use a discount rate of 2%*
 
 *What is the expected present value of damages up to 2100 under Policy A?*
+
+```{r}
+# policy A option 1: baseline (no pulse)
+damages_polA <- warming_damages_df %>% 
+  mutate(pv = npv(0.02, warming_damages_df$damages_baseline, warming_damages_df$year - 2021))
+```
+
 
 *What is the expected present value of damages up to 2100 under Policy B?* 
 
