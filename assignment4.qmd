@@ -118,58 +118,6 @@ ggplot(warming_damages_df, aes(x = year, y = damages_pulse_per_ton)) +
 
 *3. The SCC is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2. The Obama Administration used a discount rate of 3% to discount damages. The recent EPA update uses a discount rate that changes over time, but starts at 2%. Calculate and make a plot of the SCC (y-axis) against the discount rate (x-axis) for discount rates ranging from 1% to 8%.*
 
-TRIAL 1
-Create a function to calculate SCC (aka net present value):
-```{r}
-npv <- function(discount, value, time) {
-  result <- value / (1 + discount)^time
-  return(result)
-}
-```
-
-Calculate PV for discount rates ranging from 1% to 8%:
-```{r}
-# create sequence of discount rates
-discount_rates <- seq(0.01, 0.08, by = 0.01)
-
-# create dataframe to store present value (PV) values
-damages_pv <- data.frame()
-
-# write for loop to populate dataframe using our discount_rates values
-for (rate in discount_rates) {
-  # calculate SCC for each discount rate
-  pv <- npv(rate, warming_damages_df$damages_diff, warming_damages_df$year - 2021) # NOTE: using "damages_diff" column, may need to change to damages_pulse_per_ton
-  
-  # create temporary dataframe to store results
-  temp_df <- data.frame(
-    r = rate,
-    pv = pv,
-    year = warming_damages_df$year
-  )
-  
-  # bind temporary dataframe to main dataframe
-  damages_pv <- rbind(damages_pv, temp_df)
-}
-
-# calculate SCC based on pv for each rate
-scc_df <- damages_pv %>%
-  group_by(r) %>%
-  summarise(scc = sum(pv, na.rm = TRUE))
-```
-
-Plot SCC against discount rate:
-```{r}
-ggplot(scc_df, aes(x = r, y = scc)) +
-  geom_point() +
-  geom_line() +
-  labs(title = "Social Cost of Carbon (SCC) vs. Discount Rate",
-       x = "Discount Rate",
-       y = "Social Cost of Carbon ($)") +
-  theme_minimal()
-```
-
-TRIAL 2 - WE THINK THIS ONE IS RIGHT BUT LETS COME BACK TO IT
-
 Create a function to calculate SCC (aka net present value):
 ```{r}
 npv <- function(discount, value, time) {
@@ -230,16 +178,52 @@ ggplot(scc_df, aes(x = r, y = scc)) +
 *What is the expected present value of damages up to 2100 under Policy A?*
 
 ```{r}
-# policy A option 1: baseline (no pulse)
-damages_polA <- warming_damages_df %>% 
-  mutate(pv = npv(0.02, warming_damages_df$damages_baseline, warming_damages_df$year - 2021))
+# create damages columns for Policy A and Policy B
+damages_4 <- warming_data %>% 
+  mutate(damages_baseline = damage_fxn(warming_baseline),
+         warming_15 = warming_baseline * 1.5,
+         damages_15 = damage_fxn(warming_15),
+         warming_polB = ifelse(year <= 2050, warming_baseline, 1.29),
+         damages_polB = damage_fxn(warming_polB))
 ```
+
+```{r}
+# policy A option 1: baseline (no pulse)
+polA_1 <- npv(0.02, damages_4$damages_baseline, damages_4$year - 2021)
+# policy A option 2: 1.5 times baseline
+polA_2 <- npv(0.02, damages_4$damages_15, damages_4$year - 2021)
+
+# calculate expected present value of damages up to 2100 under Policy A
+expected_polA <- (0.5 * sum(polA_1, na.rm = TRUE)) + (0.5 * sum(polA_2, na.rm = TRUE))
+print(expected_polA)
+```
+
 
 
 *What is the expected present value of damages up to 2100 under Policy B?* 
 
+```{r}
+# policy B: stabilize at 1.29 degrees after 2050
+polB <- npv(0.02, damages_4$damages_polB, damages_4$year - 2021)
+
+# calculate expected present value of damages up to 2100 under Policy B
+expected_polB <- sum(polB, na.rm = TRUE)
+print(expected_polB)
+```
+
+
 *Suppose undertaking Policy A costs zero and undertaking Policy B costs X. How large could X be for it to still make economic sense to pursue Policy B instead of Policy A?*
+
+As long as X is less than the difference between the expected present values of damages under Policy A and Policy B (aka $4.62 x 10^5), then it would make economic sense to stick with Policy B.
+
+```{r}
+# calculate difference between expected present values of damages under Policy A and Policy B
+diff <- expected_polA - expected_polB
+print(diff)
+```
 
 ## Question 5
 
 *5. Qualitatively, how would your answer to #4 change if society were risk averse? Write 1-2 sentences explaining your logic.*
+
+
