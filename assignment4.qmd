@@ -186,7 +186,15 @@ ggplot(scc_df, aes(x = r, y = scc)) +
 
 ## Question 4
 
-*4. Now suppose there are two possible climate policies that can be pursued. Policy A is business as usual emissions, without any substantial climate change mitigation. Policy B is to take immediate and strong action on climate change. Use these facts:* *• If you undertake Policy A there are two possible outcomes. Either warming will occur as in the* \baseline" (i.e. \no-pulse") dataset above (this happens with probability 0.5) or warming each year will be 1.5 times that in the \baseline" dataset (with probability 0.5). *• Under Policy B, warming will continue until 2050 as in the* \baseline" dataset, and then will stabilize at 1.29 degrees and stay that way forever. *• Society is risk neutral* *• Use a discount rate of 2%*
+*4. Now suppose there are two possible climate policies that can be pursued. Policy A is business as usual emissions, without any substantial climate change mitigation. Policy B is to take immediate and strong action on climate change. Use these facts:*
+
+-   *If you undertake Policy A there are two possible outcomes. Either warming will occur as in the "baseline" (i.e. "no-pulse") dataset above (this happens with probability 0.5) or warming each year will be 1.5 times that in the "baseline" dataset (with probability 0.5).*
+
+-   *Under Policy B, warming will continue until 2050 as in the "baseline" dataset, and then will stabilize at 1.29 degrees and stay that way forever.*
+
+-   *Society is risk neutral*
+
+-   *Use a discount rate of 2%*
 
 *What is the expected present value of damages up to 2100 under Policy A?*
 
@@ -211,6 +219,8 @@ expected_polA <- (0.5 * sum(polA_1, na.rm = TRUE)) + (0.5 * sum(polA_2, na.rm = 
 print(expected_polA)
 ```
 
+The expected present value of damages up to 2100 under Policy A is \$6.22 x 10\^15.
+
 *What is the expected present value of damages up to 2100 under Policy B?*
 
 ```{r}
@@ -222,9 +232,11 @@ expected_polB <- sum(polB, na.rm = TRUE)
 print(expected_polB)
 ```
 
+The expected present value of damages up to 2100 under Policy B is \$1.6 x 10\^15.
+
 *Suppose undertaking Policy A costs zero and undertaking Policy B costs X. How large could X be for it to still make economic sense to pursue Policy B instead of Policy A?*
 
-As long as X is less than the difference between the expected present values of damages under Policy A and Policy B (aka \$4.62 x 10\^5), then it would make economic sense to stick with Policy B.
+As long as X is less than the difference between the expected present values of damages under Policy A and Policy B (aka \$4.62 x 10\^15), then it would make economic sense to stick with Policy B.
 
 ```{r}
 # calculate difference between expected present values of damages under Policy A and Policy B
@@ -236,4 +248,4 @@ print(diff)
 
 *5. Qualitatively, how would your answer to #4 change if society were risk averse? Write 1-2 sentences explaining your logic.*
 
-If society was risk-adverse in the above scenario, Policy B will still be selected. Policy B is less risky due to the higher probability of the scenario occurring so society would be more willing to pay the X amount.
+If society was risk-adverse in the above scenario, Policy B will still be selected. Policy B is less risky because once chosen, the amount of damages is certain, so society would be more willing to pay the X amount to guarantee no damage further than that occurs.
