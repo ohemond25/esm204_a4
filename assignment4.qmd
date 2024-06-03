@@ -14,6 +14,7 @@ execute:
   warning: false
 editor: visual
 ---
+
 ## Setup
 
 ```{r}
@@ -25,12 +26,12 @@ library(tidyverse)
 warming_data <- read.csv("warming.csv") %>% janitor::clean_names()
 ```
 
-
 ## Question 1
 
 *1. Plot the damage function over a range of delta T values from 0 degrees C to 6 degrees C.*
 
 Create damage function:
+
 ```{r}
 # delta_T represents warming in degrees C relative to pre-industrial period
 
@@ -40,12 +41,14 @@ damage_fxn <- function(delta_T) {
 ```
 
 Create dataframe using damage function for delta_T values from 0 to 6 degrees C:
+
 ```{r}
 damage_fxn_df <- data.frame(delta_T = seq(0, 6, by = 0.1)) %>% 
   mutate(damages = damage_fxn(delta_T))
 ```
 
 Plot damage function:
+
 ```{r}
 ggplot(damage_fxn_df, aes(x = delta_T, y = damages)) +
   geom_point() +
@@ -56,12 +59,12 @@ ggplot(damage_fxn_df, aes(x = delta_T, y = damages)) +
   theme_minimal()
 ```
 
-
 ## Question 2
 
 *2. Use warming.csv and the damage function to predict damages in each year under the baseline climate trajectory and under the pulse scenario. Make four plots: (1) damages over time without the pulse, (2) damages over time with the pulse, (3) the difference in damages over time with versus without the pulse (i.e., the damages that arise from the pulse), and (4) the damages over time that arise from the pulse per ton of CO2 (you can assume that each ton of the pulse causes the same amount of damage).*
 
 Modify the warming dataset to include the damages for each year under the two scenarios:
+
 ```{r}
 warming_damages_df <- warming_data %>% 
   mutate(damages_baseline = damage_fxn(warming_baseline), # use baseline delta Ts
@@ -71,6 +74,7 @@ warming_damages_df <- warming_data %>%
 ```
 
 Plot 1: Damages over time without the pulse
+
 ```{r}
 ggplot(warming_damages_df, aes(x = year, y = damages_baseline)) +
   geom_point() +
@@ -82,6 +86,7 @@ ggplot(warming_damages_df, aes(x = year, y = damages_baseline)) +
 ```
 
 Plot 2: Damages over time with the pulse
+
 ```{r}
 ggplot(warming_damages_df, aes(x = year, y = damages_pulse)) +
   geom_point() +
@@ -93,6 +98,7 @@ ggplot(warming_damages_df, aes(x = year, y = damages_pulse)) +
 ```
 
 Plot 3: Difference in damages over time with versus without the pulse
+
 ```{r}
 ggplot(warming_damages_df, aes(x = year, y = damages_diff)) +
   geom_point() +
@@ -104,6 +110,7 @@ ggplot(warming_damages_df, aes(x = year, y = damages_diff)) +
 ```
 
 Plot 4: Damages over time that arise from the pulse per ton of CO2
+
 ```{r}
 ggplot(warming_damages_df, aes(x = year, y = damages_pulse_per_ton)) +
   geom_point() +
@@ -119,6 +126,7 @@ ggplot(warming_damages_df, aes(x = year, y = damages_pulse_per_ton)) +
 *3. The SCC is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2. The Obama Administration used a discount rate of 3% to discount damages. The recent EPA update uses a discount rate that changes over time, but starts at 2%. Calculate and make a plot of the SCC (y-axis) against the discount rate (x-axis) for discount rates ranging from 1% to 8%.*
 
 Create a function to calculate SCC (aka net present value):
+
 ```{r}
 npv <- function(discount, value, time) {
   result <- value / (1 + discount)^time
@@ -127,6 +135,7 @@ npv <- function(discount, value, time) {
 ```
 
 Calculate PV for discount rates ranging from 1% to 8%:
+
 ```{r}
 # create sequence of discount rates
 discount_rates <- seq(0.01, 0.08, by = 0.01)
@@ -157,6 +166,7 @@ scc_df <- damages_pv %>%
 ```
 
 Plot SCC against discount rate:
+
 ```{r}
 ggplot(scc_df, aes(x = r, y = scc)) +
   geom_point() +
@@ -169,11 +179,7 @@ ggplot(scc_df, aes(x = r, y = scc)) +
 
 ## Question 4
 
-*4. Now suppose there are two possible climate policies that can be pursued. Policy A is business as usual emissions, without any substantial climate change mitigation. Policy B is to take immediate and strong action on climate change. Use these facts:*
-*• If you undertake Policy A there are two possible outcomes. Either warming will occur as in the \baseline" (i.e. \no-pulse") dataset above (this happens with probability 0.5) or warming each year will be 1.5 times that in the \baseline" dataset (with probability 0.5).*
-*• Under Policy B, warming will continue until 2050 as in the \baseline" dataset, and then will stabilize at 1.29 degrees and stay that way forever.*
-*• Society is risk neutral*
-*• Use a discount rate of 2%*
+*4. Now suppose there are two possible climate policies that can be pursued. Policy A is business as usual emissions, without any substantial climate change mitigation. Policy B is to take immediate and strong action on climate change. Use these facts:* *• If you undertake Policy A there are two possible outcomes. Either warming will occur as in the* \baseline" (i.e. \no-pulse") dataset above (this happens with probability 0.5) or warming each year will be 1.5 times that in the \baseline" dataset (with probability 0.5). *• Under Policy B, warming will continue until 2050 as in the* \baseline" dataset, and then will stabilize at 1.29 degrees and stay that way forever. *• Society is risk neutral* *• Use a discount rate of 2%*
 
 *What is the expected present value of damages up to 2100 under Policy A?*
 
@@ -198,9 +204,7 @@ expected_polA <- (0.5 * sum(polA_1, na.rm = TRUE)) + (0.5 * sum(polA_2, na.rm = 
 print(expected_polA)
 ```
 
-
-
-*What is the expected present value of damages up to 2100 under Policy B?* 
+*What is the expected present value of damages up to 2100 under Policy B?*
 
 ```{r}
 # policy B: stabilize at 1.29 degrees after 2050
@@ -211,10 +215,9 @@ expected_polB <- sum(polB, na.rm = TRUE)
 print(expected_polB)
 ```
 
-
 *Suppose undertaking Policy A costs zero and undertaking Policy B costs X. How large could X be for it to still make economic sense to pursue Policy B instead of Policy A?*
 
-As long as X is less than the difference between the expected present values of damages under Policy A and Policy B (aka $4.62 x 10^5), then it would make economic sense to stick with Policy B.
+As long as X is less than the difference between the expected present values of damages under Policy A and Policy B (aka \$4.62 x 10\^5), then it would make economic sense to stick with Policy B.
 
 ```{r}
 # calculate difference between expected present values of damages under Policy A and Policy B
@@ -225,5 +228,3 @@ print(diff)
 ## Question 5
 
 *5. Qualitatively, how would your answer to #4 change if society were risk averse? Write 1-2 sentences explaining your logic.*
-
-
